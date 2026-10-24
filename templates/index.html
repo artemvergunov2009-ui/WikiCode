@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WikiCode — справочник для начинающих программистов</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-inner">
+            <a href="#" class="logo" id="logo">Wiki<span>Code</span></a>
+            <nav class="nav">
+                <a href="#" id="nav-home">Главная</a>
+                <a href="#" id="nav-catalog">Справочник</a>
+                <a href="#" id="nav-favorites">Избранное</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section id="page-home" class="page">
+            <div class="hero">
+                <h1>WikiCode</h1>
+                <p>Простой справочник для начинающих программистов.<br>
+                   Краткие объяснения, примеры кода и мини-тесты по Python, HTML, CSS и JavaScript.</p>
+            </div>
+
+            <!-- Поиск -->
+            <div class="search-block">
+                <input type="text" id="search-input" placeholder="Поиск по справочнику: например, «циклы»...">
+                <button id="search-btn" class="btn">Найти</button>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="filter-language">Язык:</label>
+                    <select id="filter-language">
+                        <option value="">Все языки</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="filter-category">Тема:</label>
+                    <select id="filter-category">
+                        <option value="">Все темы</option>
+                    </select>
+                </div>
+                <button id="filter-reset" class="btn btn-light">Сбросить</button>
+            </div>
+
+            <h2 class="section-title">Категории</h2>
+            <div id="language-cards" class="cards-grid"></div>
+        </section>
+
+        <section id="page-catalog" class="page hidden">
+            <button class="btn btn-light back-btn" id="back-home">&larr; На главную</button>
+            <h1 class="page-title" id="catalog-title">Справочник</h1>
+            <p class="page-subtitle" id="catalog-subtitle"></p>
+            <div id="material-list" class="cards-grid"></div>
+        </section>
+
+        <section id="page-favorites" class="page hidden">
+            <button class="btn btn-light back-btn" id="back-home-2">&larr; На главную</button>
+            <h1 class="page-title">Избранное</h1>
+            <p class="page-subtitle">Темы, которые вы сохранили для быстрого доступа.</p>
+            <div id="favorites-list" class="cards-grid"></div>
+        </section>
+
+        <section id="page-topic" class="page hidden">
+            <button class="btn btn-light back-btn" id="back-catalog">&larr; К списку тем</button>
+
+            <div id="topic-card" class="topic-card">
+            </div>
+
+            <div id="quiz-block" class="quiz-card hidden">
+                <h2>Мини-тест</h2>
+                <div id="quiz-content"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% macro card(material, favorites, back) %}
+{% set is_fav = material.id in favorites %}
+{% set description = material.description or material.content or '' %}
+<div class="card">
+    <div class="card-top">
+        <span class="badge">{{ material.language or 'Code' }}</span>
+
+        <form action="/favorites/toggle" method="post">
+            <input type="hidden" name="material_id" value="{{ material.id }}">
+            <input type="hidden" name="back" value="{{ back }}">
+            <button type="submit" class="btn-fav {% if is_fav %}active{% endif %}" title="В избранное">
+                {{ '★' if is_fav else '☆' }}
+            </button>
+        </form>
+    </div>
+
+    <h3>{{ material.title or 'Без названия' }}</h3>
+    <p>{{ description[:90] }}{% if description|length > 90 %}...{% endif %}</p>
+
+    <div class="card-actions">
+        <a class="btn" href="/topic/{{ material.id }}">Открыть тему</a>
+    </div>
+</div>
+{% endmacro %}

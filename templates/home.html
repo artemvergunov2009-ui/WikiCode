@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+    <div class="hero">
+        <h1>WikiCode</h1>
+        <p>Простой справочник для начинающих программистов.<br>
+           Краткие объяснения, примеры кода и мини-тесты по Python, HTML, CSS и JavaScript.</p>
+    </div>
+
+    <!-- Поиск -->
+    <form class="search-block" action="/catalog" method="get">
+        <input type="text" name="search" placeholder="Поиск по справочнику: например, «циклы»...">
+        <button type="submit" class="btn">Найти</button>
+    </form>
+
+    {% include "_filters.html" %}
+
+    <h2 class="section-title">Категории</h2>
+    <div class="cards-grid">
+        {% for card in language_cards %}
+        <div class="card">
+            <span class="badge">{{ card.language }}</span>
+            <h3>{{ card.language }}</h3>
+            <p>{{ card.titles[:3]|join(', ') }}{% if card.titles|length > 3 %}...{% endif %}</p>
+            <div class="card-actions">
+                <a class="btn" href="/catalog?language={{ card.language|urlencode }}">
+                    Смотреть темы ({{ card.titles|length }})
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

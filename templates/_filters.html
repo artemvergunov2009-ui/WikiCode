@@ -1,0 +1,26 @@
+<form class="filters" action="/catalog" method="get">
+    <div class="filter-group">
+        <label for="filter-language">Язык:</label>
+        <select id="filter-language" name="language">
+            <option value="">Все языки</option>
+            {% for item in languages %}
+            <option value="{{ item.language }}" {% if item.language == selected_language %}selected{% endif %}>
+                {{ item.language }} ({{ item.count }})
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="filter-group">
+        <label for="filter-category">Тема:</label>
+        <select id="filter-category" name="category">
+            <option value="">Все темы</option>
+            {% for name in categories %}
+            <option value="{{ name }}" {% if name == selected_category %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn">Применить</button>
+    <a href="/catalog" class="btn btn-light">Сбросить</a>
+</form>

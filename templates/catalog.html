@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Справочник — WikiCode{% endblock %}
+
+{% block content %}
+<section>
+    <a href="/" class="btn btn-light back-btn">&larr; На главную</a>
+
+    <h1 class="page-title">
+        {% if search %}Поиск: «{{ search }}»{% elif selected_language %}{{ selected_language }}{% else %}Справочник{% endif %}
+    </h1>
+    <p class="page-subtitle">Найдено тем: {{ materials|length }}</p>
+
+    {% include "_filters.html" %}
+
+    {% if materials %}
+    <div class="cards-grid">
+        {% for material in materials %}
+            {{ m.card(material, favorites, back) }}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">Темы не найдены.</div>
+    {% endif %}
+</section>
+{% endblock %}

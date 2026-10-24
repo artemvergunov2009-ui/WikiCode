@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Избранное — WikiCode{% endblock %}
+
+{% block content %}
+<section>
+    <a href="/" class="btn btn-light back-btn">&larr; На главную</a>
+
+    <h1 class="page-title">Избранное</h1>
+    <p class="page-subtitle">Темы, которые вы сохранили для быстрого доступа.</p>
+
+    {% if materials %}
+    <div class="cards-grid">
+        {% for material in materials %}
+            {{ m.card(material, favorites, back) }}
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">Здесь пока пусто. Нажмите ☆ на любой теме, чтобы сохранить её.</div>
+    {% endif %}
+</section>
+{% endblock %}

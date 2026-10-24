@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}{{ material.title }} — WikiCode{% endblock %}
+
+{% block content %}
+<section>
+    <a href="/catalog" class="btn btn-light back-btn">&larr; К списку тем</a>
+
+    <div class="topic-card">
+        <div class="topic-header">
+            <h1>{{ material.title }}</h1>
+
+            <div class="card-top">
+                <span class="badge">{{ material.language }}</span>
+
+                <form action="/favorites/toggle" method="post">
+                    <input type="hidden" name="material_id" value="{{ material.id }}">
+                    <input type="hidden" name="back" value="/topic/{{ material.id }}">
+                    {% if material.id in favorites %}
+                    <button type="submit" class="btn-fav active">★ В избранном</button>
+                    {% else %}
+                    <button type="submit" class="btn-fav">☆ В избранное</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <p class="description">{{ material.description or material.content or '' }}</p>
+
+        {% if material.code %}
+        <div class="code-block">
+            <pre><code>{{ material.code }}</code></pre>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if questions %}
+    <div id="quiz" class="quiz-card">
+        <h2>Мини-тест</h2>
+
+        <form action="/topic/{{ material.id }}/quiz#quiz" method="post">
+            {% for q in questions %}
+            {% set qi = loop.index0 %}
+            <div class="quiz-question">
+                <p>{{ loop.index }}. {{ q.question }}</p>
+
+                <div class="quiz-options">
+                    {% for option in q.options %}
+                    {% set oi = loop.index0 %}
+                    <label class="
+                        {%- if answers is not none -%}
+                            {%- if oi == q.correct %} correct{% elif answers.get(qi) == oi %} wrong{% endif -%}
+                        {%- endif -%}">
+                        <input type="radio" name="q{{ qi }}" value="{{ oi }}"
+                            {% if answers is not none %}disabled{% endif %}
+                            {% if answers is not none and answers.get(qi) == oi %}checked{% endif %}>
+                        {{ option }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if score is not none %}
+            <div class="quiz-result">Результат: {{ score }} из {{ questions|length }}</div>
+            <a href="/topic/{{ material.id }}#quiz" class="btn btn-light">Пройти заново</a>
+            {% else %}
+            <button type="submit" class="btn">Проверить ответы</button>
+            {% endif %}
+        </form>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
