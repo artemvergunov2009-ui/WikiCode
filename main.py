@@ -1,12 +1,12 @@
+import json
 import os
 from typing import Optional
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, Form, HTTPException, Request
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from fastapi.templating import Jinja2Templates
 from supabase import create_client, Client
 
 load_dotenv()
@@ -23,23 +23,20 @@ if SUPABASE_URL and SUPABASE_KEY:
         print(f"[ОШИБКА SUPABASE]: {e}")
 
 
-app = FastAPI(title="WikiCode API")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI(title="WikiCode")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PUBLIC_DIR = os.path.join(BASE_DIR, "public")
+
+app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(BASE_DIR, "static")),
+    name="static"
+)
+
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 
-class FavoriteItem(BaseModel):
-    material_id: int
-
+# ---------- Работа с базой ----------
 
 def get_supabase():
     if supabase is None:
@@ -47,7 +44,6 @@ def get_supabase():
             status_code=503,
             detail="Supabase не настроен или недоступен"
         )
-
     return supabase
 
 
@@ -68,12 +64,7 @@ def deduplicate_materials(materials):
     return unique
 
 
-@app.get("/api/materials")
-@app.get("/data/materials")
-async def get_materials(
-    language: Optional[str] = None,
-    search: Optional[str] = None
-):
+def load_materials(language="", category="", search=""):
     db = get_supabase()
 
     try:
@@ -82,15 +73,15 @@ async def get_materials(
         if language:
             query = query.eq("language", language)
 
+        if category:
+            query = query.eq("category", category)
+
         if search:
             query = query.ilike("title", f"%{search}%")
 
         response = query.execute()
-
         return deduplicate_materials(response.data or [])
 
-    except HTTPException:
-        raise
     except Exception as e:
         print(f"[ОШИБКА ЗАГРУЗКИ МАТЕРИАЛОВ]: {e}")
         raise HTTPException(
@@ -99,8 +90,7 @@ async def get_materials(
         )
 
 
-@app.get("/api/materials/{material_id}")
-async def get_material_by_id(material_id: int):
+def load_material(material_id):
     db = get_supabase()
 
     try:
@@ -110,17 +100,6 @@ async def get_material_by_id(material_id: int):
             .eq("id", material_id)
             .execute()
         )
-
-        if not response.data:
-            raise HTTPException(
-                status_code=404,
-                detail="Материал не найден"
-            )
-
-        return response.data[0]
-
-    except HTTPException:
-        raise
     except Exception as e:
         print(f"[ОШИБКА ЗАГРУЗКИ МАТЕРИАЛА]: {e}")
         raise HTTPException(
@@ -128,10 +107,63 @@ async def get_material_by_id(material_id: int):
             detail="Не удалось загрузить материал из Supabase"
         )
 
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Материал не найден")
 
-@app.get("/api/languages")
-async def get_languages():
-    materials = await get_materials()
+    return response.data[0]
+
+
+def load_questions(material_id):
+    db = get_supabase()
+
+    try:
+        response = (
+            db.table("quizzes")
+            .select("*")
+            .eq("material_id", material_id)
+            .execute()
+        )
+    except Exception as e:
+        print(f"[ОШИБКА ЗАГРУЗКИ ТЕСТОВ]: {e}")
+        return []
+
+    if not response.data:
+        return []
+
+    questions = response.data[0].get("questions")
+
+    # иногда JSON хранится как строка
+    if isinstance(questions, str):
+        try:
+            questions = json.loads(questions)
+        except ValueError:
+            return []
+
+    if not isinstance(questions, list):
+        return []
+
+    return questions
+
+
+def load_favorite_ids():
+    db = get_supabase()
+
+    try:
+        response = db.table("favorites").select("*").execute()
+    except Exception as e:
+        print(f"[ОШИБКА ЗАГРУЗКИ ИЗБРАННОГО]: {e}")
+        return []
+
+    return [
+        item["material_id"]
+        for item in (response.data or [])
+        if "material_id" in item
+    ]
+
+
+def get_filter_options():
+    """Списки языков и тем для выпадающих списков."""
+    materials = load_materials()
 
     lang_counts = {}
     categories = set()
@@ -146,118 +178,161 @@ async def get_languages():
         if category:
             categories.add(category)
 
-    topics = [
-        {"language": language, "count": count}
-        for language, count in lang_counts.items()
+    languages = [
+        {"language": name, "count": count}
+        for name, count in lang_counts.items()
     ]
 
-    return {
-        "topics": topics,
-        "categories": sorted(categories)
-    }
+    return materials, languages, sorted(categories)
 
 
-@app.get("/api/quizzes")
-@app.get("/data/quizzes")
-async def get_quizzes(material_id: Optional[int] = None):
-    db = get_supabase()
-
-    try:
-        query = db.table("quizzes").select("*")
-
-        if material_id is not None:
-            query = query.eq("material_id", material_id)
-
-        response = query.execute()
-
-        return response.data or []
-
-    except Exception as e:
-        print(f"[ОШИБКА ЗАГРУЗКИ ТЕСТОВ]: {e}")
-        raise HTTPException(
-            status_code=502,
-            detail="Не удалось загрузить тесты из Supabase"
-        )
+def current_url(request: Request):
+    """Адрес текущей страницы (чтобы вернуться на неё после нажатия на ☆)."""
+    url = request.url.path
+    if request.url.query:
+        url += "?" + request.url.query
+    return url
 
 
-@app.get("/api/favorites")
-@app.get("/data/favorites")
-async def get_favorites():
-    db = get_supabase()
-
-    try:
-        response = db.table("favorites").select("*").execute()
-
-        return [
-            item["material_id"]
-            for item in (response.data or [])
-            if "material_id" in item
-        ]
-
-    except Exception as e:
-        print(f"[ОШИБКА ЗАГРУЗКИ ИЗБРАННОГО]: {e}")
-        raise HTTPException(
-            status_code=502,
-            detail="Не удалось загрузить избранное"
-        )
-
-
-@app.post("/api/favorites")
-async def add_favorite(item: FavoriteItem):
-    db = get_supabase()
-
-    try:
-        db.table("favorites").insert({
-            "material_id": item.material_id
-        }).execute()
-
-        return {"success": True}
-
-    except Exception as e:
-        print(f"[ОШИБКА ДОБАВЛЕНИЯ В ИЗБРАННОЕ]: {e}")
-        raise HTTPException(
-            status_code=502,
-            detail="Не удалось добавить материал в избранное"
-        )
-
-
-@app.delete("/api/favorites/{material_id}")
-async def remove_favorite(material_id: int):
-    db = get_supabase()
-
-    try:
-        db.table("favorites").delete().eq(
-            "material_id", material_id
-        ).execute()
-
-        return {"success": True}
-
-    except Exception as e:
-        print(f"[ОШИБКА УДАЛЕНИЯ ИЗ ИЗБРАННОГО]: {e}")
-        raise HTTPException(
-            status_code=502,
-            detail="Не удалось удалить материал из избранного"
-        )
-
+# ---------- Страницы ----------
 
 @app.get("/")
-async def read_index():
-    index_path = os.path.join(PUBLIC_DIR, "index.html")
+def home(request: Request):
+    materials, languages, categories = get_filter_options()
 
-    if not os.path.exists(index_path):
-        raise HTTPException(
-            status_code=404,
-            detail="Файл index.html не найден"
+    # карточки языков: название + примеры тем
+    groups = {}
+    for material in materials:
+        language = material.get("language")
+        if not language:
+            continue
+        groups.setdefault(language, []).append(material.get("title", ""))
+
+    language_cards = [
+        {"language": name, "titles": titles}
+        for name, titles in groups.items()
+    ]
+
+    return templates.TemplateResponse(request, "home.html", {
+        "active": "home",
+        "language_cards": language_cards,
+        "languages": languages,
+        "categories": categories,
+        "selected_language": "",
+        "selected_category": "",
+    })
+
+
+@app.get("/catalog")
+def catalog(
+    request: Request,
+    language: str = "",
+    category: str = "",
+    search: str = ""
+):
+    search = search.strip()
+
+    _, languages, categories = get_filter_options()
+    materials = load_materials(language, category, search)
+
+    return templates.TemplateResponse(request, "catalog.html", {
+        "active": "catalog",
+        "materials": materials,
+        "favorites": load_favorite_ids(),
+        "languages": languages,
+        "categories": categories,
+        "selected_language": language,
+        "selected_category": category,
+        "search": search,
+        "back": current_url(request),
+    })
+
+
+@app.get("/favorites")
+def favorites_page(request: Request):
+    favorite_ids = load_favorite_ids()
+    materials = [
+        m for m in load_materials()
+        if m["id"] in favorite_ids
+    ]
+
+    return templates.TemplateResponse(request, "favorites.html", {
+        "active": "favorites",
+        "materials": materials,
+        "favorites": favorite_ids,
+        "back": "/favorites",
+    })
+
+
+def show_topic(request: Request, material_id: int, answers=None):
+    material = load_material(material_id)
+    questions = load_questions(material_id)
+
+    score = None
+    if answers is not None:
+        score = sum(
+            1 for i, q in enumerate(questions)
+            if answers.get(i) == q.get("correct")
         )
 
-    return FileResponse(index_path)
+    return templates.TemplateResponse(request, "topic.html", {
+        "active": "catalog",
+        "material": material,
+        "questions": questions,
+        "favorites": load_favorite_ids(),
+        "answers": answers,
+        "score": score,
+    })
 
 
-app.mount(
-    "/",
-    StaticFiles(directory=PUBLIC_DIR),
-    name="static"
-)
+@app.get("/topic/{material_id}")
+def topic(request: Request, material_id: int):
+    return show_topic(request, material_id)
+
+
+@app.post("/topic/{material_id}/quiz")
+async def check_quiz(request: Request, material_id: int):
+    form = await request.form()
+
+    # поля формы называются q0, q1, q2 ... , значение — номер выбранного ответа
+    answers = {}
+    for key, value in form.items():
+        if key.startswith("q") and key[1:].isdigit() and str(value).isdigit():
+            answers[int(key[1:])] = int(value)
+
+    return show_topic(request, material_id, answers)
+
+
+# ---------- Избранное ----------
+
+@app.post("/favorites/toggle")
+def toggle_favorite(
+    material_id: int = Form(...),
+    back: str = Form("/favorites")
+):
+    db = get_supabase()
+
+    try:
+        if material_id in load_favorite_ids():
+            db.table("favorites").delete().eq(
+                "material_id", material_id
+            ).execute()
+        else:
+            db.table("favorites").insert({
+                "material_id": material_id
+            }).execute()
+    except Exception as e:
+        print(f"[ОШИБКА ИЗБРАННОГО]: {e}")
+        raise HTTPException(
+            status_code=502,
+            detail="Не удалось изменить избранное"
+        )
+
+    # возвращаемся только на страницы нашего сайта
+    if not back.startswith("/") or back.startswith("//"):
+        back = "/favorites"
+
+    return RedirectResponse(back, status_code=303)
 
 
 if __name__ == "__main__":
