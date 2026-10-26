@@ -36,7 +36,6 @@ app.mount(
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 
-# ---------- Работа с базой ----------
 
 def get_supabase():
     if supabase is None:
@@ -132,7 +131,6 @@ def load_questions(material_id):
 
     questions = response.data[0].get("questions")
 
-    # иногда JSON хранится как строка
     if isinstance(questions, str):
         try:
             questions = json.loads(questions)
@@ -293,8 +291,7 @@ def topic(request: Request, material_id: int):
 @app.post("/topic/{material_id}/quiz")
 async def check_quiz(request: Request, material_id: int):
     form = await request.form()
-
-    # поля формы называются q0, q1, q2 ... , значение — номер выбранного ответа
+    
     answers = {}
     for key, value in form.items():
         if key.startswith("q") and key[1:].isdigit() and str(value).isdigit():
@@ -302,8 +299,6 @@ async def check_quiz(request: Request, material_id: int):
 
     return show_topic(request, material_id, answers)
 
-
-# ---------- Избранное ----------
 
 @app.post("/favorites/toggle")
 def toggle_favorite(
@@ -328,7 +323,6 @@ def toggle_favorite(
             detail="Не удалось изменить избранное"
         )
 
-    # возвращаемся только на страницы нашего сайта
     if not back.startswith("/") or back.startswith("//"):
         back = "/favorites"
 
