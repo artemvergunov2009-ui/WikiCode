@@ -36,6 +36,7 @@ app.mount(
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 
+#БДшка
 
 def get_supabase():
     if supabase is None:
@@ -192,13 +193,13 @@ def current_url(request: Request):
     return url
 
 
-# ---------- Страницы ----------
+#Тут странички
 
 @app.get("/")
 def home(request: Request):
     materials, languages, categories = get_filter_options()
 
-    # карточки языков: название + примеры тем
+    #здесь карточки языков
     groups = {}
     for material in materials:
         language = material.get("language")
@@ -291,7 +292,7 @@ def topic(request: Request, material_id: int):
 @app.post("/topic/{material_id}/quiz")
 async def check_quiz(request: Request, material_id: int):
     form = await request.form()
-    
+
     answers = {}
     for key, value in form.items():
         if key.startswith("q") and key[1:].isdigit() and str(value).isdigit():
@@ -299,6 +300,8 @@ async def check_quiz(request: Request, material_id: int):
 
     return show_topic(request, material_id, answers)
 
+
+#Тут избранное
 
 @app.post("/favorites/toggle")
 def toggle_favorite(
