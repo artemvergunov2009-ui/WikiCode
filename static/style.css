@@ -5,9 +5,9 @@
 }
 
 body {
-    font-family: Arial, Helvetica, sans-serif;
-    background: #f4f7f5;
-    color: #1f2937;
+    font-family: Verdana, Arial, sans-serif;
+    background: #eef7ee;
+    color: #222;
     line-height: 1.6;
 }
 
@@ -21,12 +21,13 @@ body {
     display: none !important;
 }
 
+/* шапка */
 .header {
-    background: #ffffff;
-    border-bottom: 3px solid #22c55e;
+    background: #2e8b57;
     position: sticky;
     top: 0;
     z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .header-inner {
@@ -42,51 +43,54 @@ body {
 .logo {
     font-size: 26px;
     font-weight: bold;
-    color: #1f2937;
+    color: #ffffff;
     text-decoration: none;
 }
 
 .logo span {
-    color: #16a34a;
+    color: #c8f7c5;
 }
 
 .nav {
     display: flex;
-    gap: 18px;
+    gap: 14px;
 }
 
 .nav a {
-    color: #374151;
+    color: #ffffff;
     text-decoration: none;
-    padding: 6px 10px;
-    border-radius: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
 }
 
 .nav a:hover,
 .nav a.active {
-    background: #dcfce7;
-    color: #15803d;
+    background: #1f6b41;
 }
 
+/* главный блок */
 .hero {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 10px;
     padding: 40px 24px;
     text-align: center;
     margin: 24px 0;
+    border-top: 5px solid #2e8b57;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .hero h1 {
     font-size: 40px;
-    color: #16a34a;
+    color: #2e8b57;
     margin-bottom: 10px;
 }
 
 .hero p {
-    color: #4b5563;
+    color: #555;
     font-size: 17px;
 }
 
+/* поиск */
 .search-block {
     display: flex;
     gap: 10px;
@@ -96,49 +100,52 @@ body {
 .search-block input {
     flex: 1;
     padding: 12px 16px;
-    border: 2px solid #d1d5db;
-    border-radius: 10px;
+    border: 2px solid #bbb;
+    border-radius: 8px;
     font-size: 16px;
 }
 
 .search-block input:focus {
     outline: none;
-    border-color: #22c55e;
+    border-color: #2e8b57;
 }
 
+/* кнопки */
 .btn {
     padding: 10px 20px;
-    background: #22c55e;
+    background: #2e8b57;
     color: #ffffff;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
 }
 
 .btn:hover {
-    background: #16a34a;
+    background: #1f6b41;
 }
 
 .btn-light {
     background: #ffffff;
-    color: #16a34a;
-    border: 2px solid #22c55e;
+    color: #2e8b57;
+    border: 2px solid #2e8b57;
 }
 
 .btn-light:hover {
-    background: #dcfce7;
+    background: #e3f4e3;
 }
 
+/* фильтры */
 .filters {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
     align-items: flex-end;
     background: #ffffff;
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 14px;
     margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .filter-group {
@@ -149,27 +156,29 @@ body {
 
 .filter-group label {
     font-size: 13px;
-    color: #6b7280;
+    color: #666;
 }
 
 .filter-group select {
     padding: 8px 12px;
-    border: 2px solid #d1d5db;
-    border-radius: 8px;
+    border: 2px solid #bbb;
+    border-radius: 6px;
     font-size: 15px;
     background: #ffffff;
 }
 
 .filter-group select:focus {
     outline: none;
-    border-color: #22c55e;
+    border-color: #2e8b57;
 }
 
 .section-title {
     margin: 10px 0 16px;
     font-size: 22px;
+    color: #1f6b41;
 }
 
+/* карточки */
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -179,16 +188,18 @@ body {
 
 .card {
     background: #ffffff;
-    border-radius: 14px;
+    border-radius: 10px;
     padding: 18px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #d5e5d5;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .card:hover {
-    border-color: #86efac;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    border-color: #2e8b57;
 }
 
 .card-top {
@@ -200,10 +211,10 @@ body {
 
 .badge {
     font-size: 12px;
-    background: #dcfce7;
-    color: #15803d;
+    background: #d4f0d4;
+    color: #1f6b41;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: 12px;
     white-space: nowrap;
 }
 
@@ -213,7 +224,7 @@ body {
 
 .card p {
     font-size: 14px;
-    color: #6b7280;
+    color: #666;
     flex: 1;
 }
 
@@ -230,16 +241,16 @@ body {
 
 .btn-fav {
     background: #ffffff;
-    color: #16a34a;
-    border: 2px solid #22c55e;
-    padding: 8px;
+    color: #2e8b57;
+    border: 2px solid #2e8b57;
+    padding: 4px 10px;
     font-size: 14px;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
 }
 
 .btn-fav.active {
-    background: #16a34a;
+    background: #2e8b57;
     color: #ffffff;
 }
 
@@ -250,18 +261,21 @@ body {
 .page-title {
     font-size: 30px;
     margin-bottom: 4px;
+    color: #1f6b41;
 }
 
 .page-subtitle {
-    color: #6b7280;
+    color: #666;
     margin-bottom: 20px;
 }
 
+/* страница темы */
 .topic-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 10px;
     padding: 24px;
     margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .topic-header {
@@ -282,32 +296,34 @@ body {
     margin-bottom: 18px;
 }
 
-/* Блок кода */
+/* код */
 .code-block {
-    position: relative;
-    background: #1e293b;
-    border-radius: 12px;
+    background: #1e2a22;
+    border-radius: 8px;
     overflow: hidden;
 }
 
 .code-block pre {
     padding: 18px;
     overflow-x: auto;
-    color: #e2e8f0;
+    color: #e0f5e0;
     font-family: "Courier New", Consolas, monospace;
     font-size: 14px;
-    line-height: 1.55;
+    line-height: 1.5;
 }
 
+/* тест */
 .quiz-card {
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 10px;
     padding: 24px;
     margin-bottom: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .quiz-card h2 {
     margin-bottom: 14px;
+    color: #1f6b41;
 }
 
 .quiz-question {
@@ -328,54 +344,98 @@ body {
 .quiz-options button {
     text-align: left;
     padding: 10px 14px;
-    background: #f4f7f5;
-    border: 2px solid #d1d5db;
-    border-radius: 10px;
+    background: #f3f8f3;
+    border: 2px solid #ccc;
+    border-radius: 8px;
     font-size: 15px;
     cursor: pointer;
 }
 
 .quiz-options button:hover {
-    border-color: #22c55e;
+    border-color: #2e8b57;
 }
 
 .quiz-options button.correct {
-    background: #dcfce7;
-    border-color: #16a34a;
+    background: #d4f0d4;
+    border-color: #2e8b57;
 }
 
 .quiz-options button.wrong {
-    background: #fee2e2;
-    border-color: #ef4444;
+    background: #fde0e0;
+    border-color: #e04444;
 }
 
 .quiz-result {
     margin-top: 16px;
+    margin-bottom: 12px;
     padding: 12px 16px;
-    border-radius: 10px;
-    background: #dcfce7;
-    color: #15803d;
+    border-radius: 8px;
+    background: #d4f0d4;
+    color: #1f6b41;
     font-weight: bold;
 }
 
 .footer {
-    background: #ffffff;
-    border-top: 1px solid #e5e7eb;
+    background: #2e8b57;
     padding: 20px 0;
     text-align: center;
-    color: #6b7280;
+    color: #ffffff;
     font-size: 14px;
+    margin-top: 40px;
 }
 
 .empty {
-    color: #6b7280;
+    color: #666;
     text-align: center;
     padding: 30px;
     background: #ffffff;
-    border-radius: 14px;
+    border-radius: 10px;
     margin-bottom: 32px;
 }
 
+/* ссылки как кнопки */
+a.btn {
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+}
+
+form {
+    margin: 0;
+}
+
+/* варианты ответов в тесте */
+.quiz-options label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #f3f8f3;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.quiz-options label:hover {
+    border-color: #2e8b57;
+}
+
+.quiz-options label.correct {
+    background: #d4f0d4;
+    border-color: #2e8b57;
+}
+
+.quiz-options label.wrong {
+    background: #fde0e0;
+    border-color: #e04444;
+}
+
+.quiz-card .btn {
+    margin-top: 8px;
+}
+
+/* телефоны */
 @media (max-width: 600px) {
     .hero h1 {
         font-size: 30px;
@@ -401,52 +461,4 @@ body {
     .page-title {
         font-size: 24px;
     }
-}
-
-/* ---------- Добавлено после удаления JavaScript ---------- */
-
-/* ссылки, выглядящие как кнопки */
-a.btn {
-    display: inline-block;
-    text-decoration: none;
-    text-align: center;
-}
-
-form {
-    margin: 0;
-}
-
-/* варианты ответов в тесте (радио-кнопки) */
-.quiz-options label {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 14px;
-    background: #f4f7f5;
-    border: 2px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 15px;
-    cursor: pointer;
-}
-
-.quiz-options label:hover {
-    border-color: #22c55e;
-}
-
-.quiz-options label.correct {
-    background: #dcfce7;
-    border-color: #16a34a;
-}
-
-.quiz-options label.wrong {
-    background: #fee2e2;
-    border-color: #ef4444;
-}
-
-.quiz-card .btn {
-    margin-top: 8px;
-}
-
-.quiz-result {
-    margin-bottom: 12px;
 }
